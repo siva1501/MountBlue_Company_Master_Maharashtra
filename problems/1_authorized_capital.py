@@ -1,17 +1,22 @@
 """Plot companies by authorized capital."""
 
 import csv
+from pathlib import Path
 
 from bar_plots import bar_plot
 
 
-DATA_CSV = "data/company_master_data_2026-09-12.csv"
+DATA_CSV = (
+    Path(__file__).resolve().parent.parent
+    / "data"
+    / "company_master_data_2026-09-12.csv"
+)
 
 
-def authorized_capital():
-    """Count companies in authorized capital ranges."""
+def authorised_capital(data_csv):
+    """Count companies by authorized capital range."""
 
-    ranges = {
+    auth_capital = {
         "<= 1L": 0,
         "1L to 10L": 0,
         "10L to 1Cr": 0,
@@ -19,44 +24,40 @@ def authorized_capital():
         "> 10Cr": 0,
     }
 
-    with open(
-        DATA_CSV,
-        "r",
-        encoding="utf-8",
-    ) as file:
-        reader = csv.DictReader(file)
+    with open(data_csv, mode="r", encoding="utf-8", newline="") as file:
+        data_reader = csv.DictReader(file)
 
-        for row in reader:
+        for row in data_reader:
             try:
                 capital = float(row["Authorized Capital"])
             except (ValueError, TypeError):
                 continue
 
             if capital <= 100000:
-                ranges["<= 1L"] += 1
+                auth_capital["<= 1L"] += 1
             elif capital <= 1000000:
-                ranges["1L to 10L"] += 1
+                auth_capital["1L to 10L"] += 1
             elif capital <= 10000000:
-                ranges["10L to 1Cr"] += 1
+                auth_capital["10L to 1Cr"] += 1
             elif capital <= 100000000:
-                ranges["1Cr to 10Cr"] += 1
+                auth_capital["1Cr to 10Cr"] += 1
             else:
-                ranges["> 10Cr"] += 1
+                auth_capital["> 10Cr"] += 1
 
-    print("\nAuthorized Capital:\n")
-
-    for category, count in ranges.items():
-        print(f"{category}: {count}")
-
-    bar_plot(
-        x_bar=ranges.keys(),
-        y_bar=ranges.values(),
-        x_label="Authorized Capital",
-        y_label="Number of Companies",
-        title="Companies by Authorized Capital",
-    )
+    return auth_capital
 
 
-if __name__ == "__main__":
-    authorized_capital()
+auth_capital = authorised_capital(DATA_CSV)
 
+print(auth_capital)
+
+capital_range = auth_capital.keys()
+capital = auth_capital.values()
+
+bar_plot(
+    x_bar=capital_range,
+    y_bar=capital,
+    x_label="Capital Range",
+    y_label="Number of Companies",
+    title="Bar Plot of Authorized Capital",
+)

@@ -1,25 +1,46 @@
-"""Bar plot of company registration by year."""
+"""
+Module to count the number of company registrations by year
+and generate a bar plot for visualisation.
+"""
 
 import csv
-from collections import Counter
+from pathlib import Path
 
 from bar_plots import bar_plot
 
 
-COMPANY_FILE = "data/company_master_data_2026-09-12.csv"
+DATA_CSV = (
+    Path(__file__).resolve().parent.parent
+    / "data"
+    / "company_master_data_2026-09-12.csv"
+)
+
+ZIP_CODE_MH = (
+    Path(__file__).resolve().parent.parent
+    / "data"
+    / "zip_code_MH.csv"
+)
 
 
-def registration_by_year():
-    """Count company registrations by year."""
-    year_count = Counter()
+def count_number_of_registrations(data_csv: str) -> dict:
+    """
+    Count the number of company registrations per year from a CSV file.
+
+    Args:
+        data_csv (str): Path to the CSV file containing company data.
+
+    Returns:
+        dict: Dictionary with years as keys and registration counts as values.
+    """
+    registrations_by_year = {}
 
     with open(
-        COMPANY_FILE,
-        "r",
+        data_csv,
+        mode="r",
         encoding="utf-8",
         newline="",
-    ) as file:
-        reader = csv.DictReader(file)
+    ) as fp:
+        reader = csv.DictReader(fp)
 
         for row in reader:
             date = row["Company Registration Date"].strip()
@@ -28,34 +49,26 @@ def registration_by_year():
                 continue
 
             year = date[:4]
-            year_count[year] += 1
 
-    return year_count
+            registrations_by_year[year] = (
+                registrations_by_year.get(year, 0) + 1
+            )
 
-
-def execute():
-    """Run the registration analysis."""
-    year_count = registration_by_year()
-
-    print("\nCompany Registration by Year\n")
-
-    for year in sorted(year_count):
-        print(f"{year}: {year_count[year]}")
-
-    years = sorted(year_count)
-    registrations = [
-        year_count[year]
-        for year in years
-    ]
-
-    bar_plot(
-        x_bar=years,
-        y_bar=registrations,
-        x_label="Years",
-        y_label="Number of Registrations",
-        title="Company Registration by Year",
-    )
+    return registrations_by_year
 
 
 if __name__ == "__main__":
-    execute()
+    company_registrations_by_year = (
+        count_number_of_registrations(DATA_CSV)
+    )
+
+    years = company_registrations_by_year.keys()
+    number_of_registrations = company_registrations_by_year.values()
+
+    bar_plot(
+        x_bar=years,
+        y_bar=number_of_registrations,
+        x_label="Years",
+        y_label="Number of Registrations",
+        title="Bar Plot of Company Registration by Year",
+    )

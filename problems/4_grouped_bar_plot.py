@@ -3,9 +3,7 @@
 import csv
 from collections import Counter, defaultdict
 from datetime import datetime
-
 from bar_plots import grouped_bar_plot
-
 
 COMPANY_FILE = "data/company_master_data_2026-09-12.csv"
 
@@ -24,9 +22,7 @@ def load_data():
 
         for row in reader:
             date = row["Company Registration Date"].strip()
-            activity = row[
-                "Company Industrial Classification"
-            ].strip()
+            activity = row["Company Industrial Classification"].strip()
 
             if not date or not activity:
                 continue
@@ -52,10 +48,7 @@ def find_top_activities(registrations, years):
         if year in years:
             activity_count[activity] += 1
 
-    return [
-        activity
-        for activity, _ in activity_count.most_common(5)
-    ]
+    return [activity for activity, _ in activity_count.most_common(5)]
 
 
 def count_registrations(
@@ -77,9 +70,7 @@ def execute():
     """Run the grouped bar plot program."""
     registrations = load_data()
 
-    all_years = sorted(
-        {year for year, _ in registrations}
-    )
+    all_years = sorted({year for year, _ in registrations})
 
     years = all_years[-10:]
 
@@ -94,18 +85,13 @@ def execute():
         activities,
     )
 
-    print(
-        "\nTop 5 Business Activities - Last 10 Years\n"
-    )
+    print("\nTop 5 Business Activities - Last 10 Years\n")
 
     for year in years:
         print(f"\n{year}")
 
         for activity in activities:
-            print(
-                f"{activity}: "
-                f"{counts[year][activity]}"
-            )
+            print(f"{activity}: {counts[year][activity]}")
 
     grouped_bar_plot(
         counts=counts,
